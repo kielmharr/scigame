@@ -703,7 +703,7 @@ if (!gameOver) {
     const carMaxX = vechicle.position.x + (vechicleLength * zoom) / 2;
     if (chickenMaxX > carMinX && chickenMinX < carMaxX) {
       gameOver = true;
-      endDOM.innerHTML = `<div>Game Over </div><div>Score: ${currentLane}</div><button id="retry">Retry</button>`;
+      endDOM.innerHTML = `<div>Game Over </div><div><br>Score: ${currentLane}</div><button id="retry">Retry</button>`;
       endDOM.style.visibility = "visible";
     }
   });
@@ -720,4 +720,5 @@ document.querySelector("#retry").addEventListener("click", () => {
 }
 
 requestAnimationFrame(animate);
+
 
