@@ -2,7 +2,7 @@ const counterDOM = document.getElementById("counter");
 const endDOM = document.getElementById("end");
 
 const scene = new THREE.Scene();
-
+let gameOver = false;
 const distance = 500;
 const camera = new THREE.OrthographicCamera(
   window.innerWidth / -2,
@@ -137,6 +137,8 @@ const initaliseValues = () => {
 
   dirLight.position.x = initialDirLightPositionX;
   dirLight.position.y = initialDirLightPositionY;
+  gameOver = false;
+
 };
 
 initaliseValues();
@@ -488,11 +490,7 @@ function Lane(index) {
   }
 }
 
-document.querySelector("#retry").addEventListener("click", () => {
-  lanes.forEach((lane) => scene.remove(lane.mesh));
-  initaliseValues();
-  endDOM.style.visibility = "hidden";
-});
+
 
 document
   .getElementById("forward")
@@ -610,7 +608,7 @@ function animate(timestamp) {
       });
     }
   });
-
+if (!gameOver) {
   if (startMoving) {
     stepStartTimestamp = timestamp;
     startMoving = false;
@@ -693,23 +691,31 @@ function animate(timestamp) {
       stepStartTimestamp = moves.length === 0 ? null : timestamp;
     }
   }
-
-  // Hit test
   if (
-    lanes[currentLane].type === "car" ||
-    lanes[currentLane].type === "truck"
-  ) {
-    const chickenMinX = chicken.position.x - (chickenSize * zoom) / 2;
-    const chickenMaxX = chicken.position.x + (chickenSize * zoom) / 2;
-    const vechicleLength = { car: 60, truck: 105 }[lanes[currentLane].type];
-    lanes[currentLane].vechicles.forEach((vechicle) => {
-      const carMinX = vechicle.position.x - (vechicleLength * zoom) / 2;
-      const carMaxX = vechicle.position.x + (vechicleLength * zoom) / 2;
-      if (chickenMaxX > carMinX && chickenMinX < carMaxX) {
-        endDOM.style.visibility = "visible";
-      }
-    });
-  }
+  lanes[currentLane].type === "car" ||
+  lanes[currentLane].type === "truck"
+) {
+  const chickenMinX = chicken.position.x - (chickenSize * zoom) / 2;
+  const chickenMaxX = chicken.position.x + (chickenSize * zoom) / 2;
+  const vechicleLength = { car: 60, truck: 105 }[lanes[currentLane].type];
+  lanes[currentLane].vechicles.forEach((vechicle) => {
+    const carMinX = vechicle.position.x - (vechicleLength * zoom) / 2;
+    const carMaxX = vechicle.position.x + (vechicleLength * zoom) / 2;
+    if (chickenMaxX > carMinX && chickenMinX < carMaxX) {
+      gameOver = true;
+      endDOM.innerHTML = `<div>Game Over</div><div>Score: ${currentLane}</div><button id="retry">Retry</button>`;
+      endDOM.style.visibility = "visible";
+    }
+  });
+}
+document.querySelector("#retry").addEventListener("click", () => {
+  lanes.forEach((lane) => scene.remove(lane.mesh));
+  initaliseValues();
+  endDOM.style.visibility = "hidden";
+});
+}
+  // Hit test
+
   renderer.render(scene, camera);
 }
 
